@@ -1,32 +1,35 @@
+const http = require('http');
+const url = require('url');
+const axios = require('axios');
+require('dotenv').config({ path: '../.env' });
 
-import express from 'express'
-import cors from 'cors'
-import axios from 'axios'
-import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+const PORT = process.env.PORT || 3000;
 
-const app = express();
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const pathname = parsedUrl.pathname;
 
-const port = process.env.PORT ||3000
+    if (pathname === '/aqidata' && req.method === 'GET') {
+        const location = parsedUrl.query.location;
+        const key = process.env.REACT_APP_PUBLIC_API_KEY;
 
-app.use(cors())
-app.get('/aqidata', async function (req, res) {
-    try {
-      let location = req.query.location;
-      console.log(location,process.env.REACT_APP_PUBLIC_API_KEY)
-      let key = process.env.REACT_APP_PUBLIC_API_KEY;
-      let response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${location}&days=3&aqi=yes&alerts=no`);
-      // if(reponse.data)
-      // console.log(response.data.data.aqi)
-      console.log(response.data)
-      res.send(response.data);
-    } 
-    catch (error) {
-      console.error('Error fetching AQI data:', error.message);
-      res.status(500).send(error.message);
+        axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${location}&days=3&aqi=yes&alerts=no`)
+            .then(response => {
+                console.log(response.data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(response.data));
+            })
+            .catch(error => {
+                console.error('Error fetching AQI data:', error.message);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+            });
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('404 Not Found');
     }
-  });
+});
 
-app.listen(port, function() {
-    console.log(`Server is running on port ${port}`);
-  });
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
