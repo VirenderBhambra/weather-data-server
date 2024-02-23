@@ -2,9 +2,13 @@ const http = require('http');
 const url = require('url');
 const axios = require('axios');
 require('dotenv').config({ path: '../.env' });
+const cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+    origin: '*' // Allow requests from all origins
+};
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
@@ -29,6 +33,8 @@ const server = http.createServer((req, res) => {
         res.end('404 Not Found');
     }
 });
+
+server.use(cors(corsOptions));
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
