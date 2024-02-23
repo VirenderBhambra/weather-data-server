@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "weather-api",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "node server.js",
     "start": "node server.js"
