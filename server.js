@@ -6,12 +6,12 @@ const cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
 
-const corsOptions = {
-    origin: '*' // Allow requests from all origins
-};
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     if (pathname === '/aqidata' && req.method === 'GET') {
         const location = parsedUrl.query.location;
@@ -34,7 +34,6 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.on('request', cors(corsOptions));
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
